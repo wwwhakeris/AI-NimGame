@@ -1,6 +1,4 @@
-import random
 import tkinter as tk
-from anytree import Node, RenderTree
 
 
 class node():
@@ -130,44 +128,44 @@ root.geometry("400x400")
 root.title("Nim Game")
 root.resizable(False, False)
 
-description_label = tk.Label(
+title_descr_label = tk.Label(
     root,
     text="Welcome to the Nim Game! There is a pile of 8 sticks. On each turn, a player can take 1, 2, or 3 sticks. The player who takes the last stick loses the game. To start the game press OK.",
     wraplength=350,
 )
-description_label.pack()
+title_descr_label.pack()
 thisnode = None
-start_button = tk.Button(root, text="Ok", command=lambda: start_new_game())
+start_button = tk.Button(root, text="Ok", command=lambda: new_game())
 start_button.pack()
 
 player_choice = tk.StringVar()
 pile_label = tk.Label(root, text="Sticks Left: 8")
 pile_label.pack()
 
-text_box1 = tk.Text(root, height=7, width=26)
-text_box1.insert(tk.END, "Sticks: ||||||||")
-text_box1.pack()
+game_status_box = tk.Text(root, height=7, width=26)
+game_status_box.insert(tk.END, "Sticks: ||||||||")
+game_status_box.pack()
 
-text_box2 = tk.Text(root, height=7, width=26)
-text_box2.insert(tk.END, "")
-text_box2.pack()
+user_move_box = tk.Text(root, height=7, width=26)
+user_move_box.insert(tk.END, "")
+user_move_box.pack()
 
-description = tk.Label(root, text="")
-description.pack()
+game_description = tk.Label(root, text="")
+game_description.pack()
 
 computer_first = False
 
-def start_new_game():
+def new_game():
     global sticks_left, thisnode
     sticks_left = 8
     # d = generate_tree()
     thisnode = createTree(8)
     thisnode = eveluate(thisnode, True)
     pile_label.config(text="Sticks Left: " + str(sticks_left))
-    text_box1.delete(1.0, tk.END)
-    text_box1.insert(tk.END, "Sticks: " + "|" * sticks_left)
-    text_box2.delete(1.0, tk.END)
-    description.config(text="Do you want to start first? (y/n):")
+    game_status_box.delete(1.0, tk.END)
+    game_status_box.insert(tk.END, "Sticks: " + "|" * sticks_left)
+    user_move_box.delete(1.0, tk.END)
+    game_description.config(text="Do you want to start first? (y/n):")
     button_y.config(command=lambda: config_first_player_and_start())
     button_n.config(command=lambda: config_first_ai_and_start())
 
@@ -175,17 +173,17 @@ def config_first_ai_and_start():
     global computer_first, sticks_left
     if sticks_left==8:
         computer_first = True
-        computer_turn()
+        go_computer()
 
 def config_first_player_and_start():
     global computer_first, sticks_left
     if sticks_left==8:
         computer_first = False
-        player_turn()
+        go_player()
 
-def player_turn():
+def go_player():
     global sticks_left
-    description.config(text="Your turn. How many sticks do you want to take?")
+    game_description.config(text="Your turn. How many sticks do you want to take?")
     button_1.config(command=lambda: remove_sticks(1))
     button_2.config(command=lambda: remove_sticks(2))
     button_3.config(command=lambda: remove_sticks(3))
@@ -194,48 +192,48 @@ def player_turn():
 def remove_sticks(num_sticks):
     global sticks_left, thisnode
     if num_sticks > sticks_left:
-        text_box2.insert(tk.END, "Invalid choice. Try again.\n")
+        user_move_box.insert(tk.END, "Invalid choice. Try again.\n")
         return
     sticks_taken = num_sticks
     sticks_left -= sticks_taken
     if sticks_left < 0:
         sticks_left = 0
     pile_label.config(text="Sticks Left: " + str(sticks_left))
-    text_box1.delete(1.0, tk.END)
-    text_box1.insert(tk.END, "Sticks: " + "|" * sticks_left)
+    game_status_box.delete(1.0, tk.END)
+    game_status_box.insert(tk.END, "Sticks: " + "|" * sticks_left)
     if sticks_taken == 1:
-        text_box2.insert(tk.END, "You removed 1 stick.\n")
+        user_move_box.insert(tk.END, "You removed 1 stick.\n")
     else:
-        text_box2.insert(tk.END, "You removed {} sticks.\n".format(sticks_taken))
+        user_move_box.insert(tk.END, "You removed {} sticks.\n".format(sticks_taken))
     thisnode = gonext(thisnode, thisnode.value -sticks_taken)
     if sticks_left == 0:
-        description.config(text="You lose! Play again?")
-        button_y.config(command=start_new_game)
+        game_description.config(text="You lose! Play again?")
+        button_y.config(command=new_game)
         button_n.config(command=root.destroy)
     else:
-        computer_turn()
+        go_computer()
 
 
-def computer_turn():
+def go_computer():
     global sticks_left, thisnode, computer_first
-    description.config(text="Computer's turn...")
+    game_description.config(text="Computer's turn...")
     thiscount = thisnode.value
     thisnode = getnext(thisnode, computer_first)
     sticks_taken = thiscount-thisnode.value #computer_play(sticks_left)
     sticks_left -= sticks_taken
     pile_label.config(text="Sticks Left: " + str(sticks_left))
-    text_box1.delete(1.0, tk.END)
-    text_box1.insert(tk.END, "Sticks: " + "|" * sticks_left)
+    game_status_box.delete(1.0, tk.END)
+    game_status_box.insert(tk.END, "Sticks: " + "|" * sticks_left)
     if sticks_taken == 1:
-        text_box2.insert(tk.END, "Computer removed 1 stick.\n")
+        user_move_box.insert(tk.END, "Computer removed 1 stick.\n")
     else:
-        text_box2.insert(tk.END, "Computer removed {} sticks.\n".format(sticks_taken))
+        user_move_box.insert(tk.END, "Computer removed {} sticks.\n".format(sticks_taken))
     if sticks_left == 0:
-        description.config(text="You win! Play again?")
-        button_y.config(command=start_new_game)
+        game_description.config(text="You win! Play again?")
+        button_y.config(command=new_game)
         button_n.config(command=root.destroy)
     else:
-        player_turn()
+        go_player()
 
 
 button_y = tk.Button(root, text="Yes")
@@ -256,32 +254,3 @@ button_3 = tk.Button(root, text="3", width=1, height=1, padx=1, pady=1)
 button_3.pack(side=tk.RIGHT, padx=1)
 
 root.mainloop()
-
-
-def print_pile(pile):
-    print("Current pile: ", end="")
-    for i in range(pile):
-        print("|", end="")
-    print(" ({} counters)".format(pile))
-
-
-def get_player_choice(pile):
-    while True:
-        choice = int(input("Enter number of counters to remove (1-3): "))
-        if choice > 0 and choice <= min(pile, 3):
-            return choice
-        print("Invalid choice, try again")
-
-
-def get_computer_choice(pile):
-    if pile % 4 != 0:
-        return pile % 4
-    # Check if there is a way to win the game
-    if (pile - 1) % 4 == 0:
-        return 3
-    elif (pile - 2) % 4 == 0:
-        return 2
-    elif (pile - 3) % 4 == 0:
-        return 1
-    else:
-        return random.randint(1, min(pile, 3))
