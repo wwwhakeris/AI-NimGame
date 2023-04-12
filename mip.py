@@ -285,11 +285,3 @@ def get_computer_choice(pile):
         return 1
     else:
         return random.randint(1, min(pile, 3))
-
-def evaluate(pile, maximizing_player):
-    if pile == 0:
-        if maximizing_player:
-            return 1  # current player loses
-        else:
-            return -1  # current player wins
-    return 0
